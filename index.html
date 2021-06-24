@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./app/CSS/reset.css">
+    <link rel="stylesheet" href="./app/CSS/style.css">
+    <script src="./app/JS/script.js" defer></script>
+    <title>Metronome</title>
+</head>
+<body>
+    <main>
+        <section id="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+
+        </section>
+        <section id="tempo">
+            <div data-tempo class="displayTempo">100</div>
+            <button data-tempo-down class="down">-1</button>
+            <button data-tempo-up class="up">+1</button>
+        </section>
+        <section id="tempo5bpm">
+            <button data-tempo-5down class="fiveDown">-5</button>
+            <button data-tempo-5up class="fiveUp">+5</button>
+        </section>
+        <section id="slider">
+            <input data-tempo-slider type="range" min="30" max="300" value="100" class="slider">
+        </section>
+        <section id="play_stop">
+            <button data-start-btn class="playBtn">START</button>
+            <button data-stop-btn class="stopBtn">STOP</button>
+        </section>
+    </main>
+</body>
+</html>
