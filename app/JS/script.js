@@ -46,6 +46,23 @@ class Tempo {
 
 }
 
+
+// ---------------------- stworzenie AudioContext ----------------
+
+// let context;
+// window.addEventListener('load', init, false);
+// function init() {
+//     try {
+//         window.AudioContext = 
+//             window.AudioContext || window.webkitAudioContext;
+//         context = new AudioContext();
+//     } catch (error) {
+//         alert('Web Audio API is not supported');
+//     }
+// }
+
+
+
 // ---------------------- przypisanie elementów JS do index.html ----------------
 
 const tempoTextElement = document.querySelector('[data-tempo]');
@@ -91,3 +108,23 @@ tempoSlider.addEventListener('input', () => {
     tempo.classTempo = parseFloat(tempoSlider.value);
     tempo.updateDisplay();
 })
+
+// --------------------- odtworzenie dźwięku ----------------------
+
+startBtn.addEventListener('click', () => {
+
+    const context = new AudioContext();
+    context.createOscillator();
+    context.start();
+    console.log('Play!');
+
+    
+    tempo.updateDisplay();
+    // const audio = new (window.AudioContext || window.webkitAudioContext)();
+    // const osc = AudioContext.createOscillator();
+    // osc.frequency.value = 800;
+    // osc.connect(AudioContext.destination);
+    // osc.start(AudioContext.currentTime + 1);
+    // console.log('play!');
+    // tempo.updateDisplay();
+});
