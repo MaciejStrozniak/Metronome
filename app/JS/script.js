@@ -1,5 +1,7 @@
 // ----------------------- Deklaracja klasy -------------------------------------
 
+// Przeszło
+
 class Tempo {
     constructor(tempoTextElement) {
         this.tempoTextElement = tempoTextElement;
