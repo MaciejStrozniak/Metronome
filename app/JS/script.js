@@ -7,7 +7,7 @@ class Tempo {
     }
 
     metronomeStartSetup() {
-        this.classTempo = 100;
+        this.classTempo = 100; 
     }
 
     changeTempoUp() {
