@@ -1,7 +1,5 @@
 // ----------------------- Deklaracja klasy -------------------------------------
 
-// Przeszło
-
 class Tempo {
     constructor(tempoTextElement) {
         this.tempoTextElement = tempoTextElement;
@@ -51,17 +49,27 @@ class Tempo {
 
 // ---------------------- stworzenie AudioContext ----------------
 
-// let context;
-// window.addEventListener('load', init, false);
-// function init() {
-//     try {
-//         window.AudioContext = 
-//             window.AudioContext || window.webkitAudioContext;
-//         context = new AudioContext();
-//     } catch (error) {
-//         alert('Web Audio API is not supported');
-//     }
-// }
+const audioContext = new AudioContext();
+// buffer definiuje czas trwania dźwięku
+const buffer = audioContext.createBuffer(
+    1, audioContext.sampleRate * 0.5, audioContext.sampleRate 
+    );
+// czytanie danych z kanałów stworzonych w buffer
+const channelData = buffer.getChannelData(0); // 0 odpowiada pierwszemu kanałowi
+
+// stworzenie white noise (??)
+for (let i = 0; i < buffer.length; i++) {
+    channelData[i] = Math.random() * 2 - 1;
+}
+
+const masterVolume = audioContext.createGain();
+masterVolume.gain.setValueAtTime(0.05, 0);
+
+masterVolume.connect(audioContext.destination); // podpięcie całości do master
+
+// CLICK
+
+const click_source = './samples/click.wav';
 
 
 
@@ -113,20 +121,31 @@ tempoSlider.addEventListener('input', () => {
 
 // --------------------- odtworzenie dźwięku ----------------------
 
+// startBtn.addEventListener('click', () => {
+// // stworzenie buffer source czyli połączenie audio odpowiedzialne za odtw. dźwięku
+// // przenesione do event listenera ze względu na to, że buffer musi być tworzony
+// // za każdym razem na nowo. Plus wynika to z zarządzania pamięcią w 
+// // webAudioAPI   
+
+// const whiteNoiseSource = audioContext.createBufferSource();
+//     whiteNoiseSource.buffer = buffer;
+//     whiteNoiseSource.connect(masterVolume); // podpięcie pod volume gain
+
+//     whiteNoiseSource.start();
+// });
+
+// startBtn.addEventListener('click', async () => {
+//     const response = await fetch(click_source);
+//     const soundBuffer = await response.arrayBuffer();
+//     const clickBuffer = await audioContext.decodeAudioData(soundBuffer);
+
+//     const clickSource = audioContext.createBufferSource();
+//     clickSource.buffer = clickBuffer;
+
+//     clickSource.connect(masterVolume);
+//     clickSource.start();
+// });
+
 startBtn.addEventListener('click', () => {
-
-    const context = new AudioContext();
-    context.createOscillator();
-    context.start();
-    console.log('Play!');
-
     
-    tempo.updateDisplay();
-    // const audio = new (window.AudioContext || window.webkitAudioContext)();
-    // const osc = AudioContext.createOscillator();
-    // osc.frequency.value = 800;
-    // osc.connect(AudioContext.destination);
-    // osc.start(AudioContext.currentTime + 1);
-    // console.log('play!');
-    // tempo.updateDisplay();
 });
