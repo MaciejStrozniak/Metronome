@@ -49,24 +49,31 @@ class Tempo {
 
 // ---------------------- stworzenie AudioContext ----------------
 
-// const audioContext = new AudioContext();
-// // buffer definiuje czas trwania dźwięku
-// const buffer = audioContext.createBuffer(
-//     1, audioContext.sampleRate * 0.5, audioContext.sampleRate 
-//     );
-// // czytanie danych z kanałów stworzonych w buffer
-// const channelData = buffer.getChannelData(0); // 0 odpowiada pierwszemu kanałowi
-// const clickChannelData = buffer.getChannelData(0);
+const audioContext = new AudioContext();
+// buffer definiuje czas trwania dźwięku
+const buffer = audioContext.createBuffer(
+    1, audioContext.sampleRate * 0.01, audioContext.sampleRate 
+    );
+// czytanie danych z kanałów stworzonych w buffer
+const channelData = buffer.getChannelData(0); // 0 odpowiada pierwszemu kanałowi
 
-// // WHITE NOISE
-// for (let i = 0; i < buffer.length; i++) {
-//     channelData[i] = Math.random() * 2 - 1;
-// }
+// WHITE NOISE
+for (let i = 0; i < buffer.length; i++) {
+    channelData[i] = Math.random() * 2 - 1;
+}
 
+const masterVolume = audioContext.createGain();
+masterVolume.gain.setValueAtTime(0.5, 0);
 
-// masterVolume.connect(audioContext.destination); // podpięcie całości do master
+masterVolume.connect(audioContext.destination); // podpięcie całości do master
 
-const audioContext = new AudioContext;
+// WHITE NOISE FILTER
+const whiteNoiseFilter = audioContext.createBiquadFilter();
+whiteNoiseFilter.type = 'lowpass';
+whiteNoiseFilter.frequency.value = 3000;
+whiteNoiseFilter.connect(masterVolume); 
+
+//const audioContext = new AudioContext;
 // let audio;
 
 // fetch("./samples/click.mp3")
@@ -75,9 +82,6 @@ const audioContext = new AudioContext;
 //     .then(decodedAudio => {
 //         audio = decodedAudio;
 //     });
-
-//     const masterVolume = audioContext.createGain();
-//     masterVolume.gain.setValueAtTime(0.05, 0);
 
 // function playClick() {
 //     const playSound = audioContext.createBufferSource();
@@ -142,29 +146,21 @@ tempoSlider.addEventListener('input', () => {
 
 // --------------------- odtworzenie dźwięku ----------------------
 
-// startBtn.addEventListener('click', () => {
+startBtn.addEventListener('click', () => {
 // // stworzenie buffer source czyli połączenie audio odpowiedzialne za odtw. dźwięku
 // // przenesione do event listenera ze względu na to, że buffer musi być tworzony
 // // za każdym razem na nowo. Plus wynika to z zarządzania pamięcią w 
 // // webAudioAPI   
 
-// const whiteNoiseSource = audioContext.createBufferSource();
-//     whiteNoiseSource.buffer = buffer;
-//     whiteNoiseSource.connect(masterVolume); // podpięcie pod volume gain
+const whiteNoiseSource = audioContext.createBufferSource();
+    whiteNoiseSource.buffer = buffer;
+    whiteNoiseSource.detune.setValueAtTime(7, 0);
+    whiteNoiseSource.connect(whiteNoiseFilter); // podpięcie pod volume gain
 
-//     whiteNoiseSource.start();
-// });
+    whiteNoiseSource.start();
+});
 
 // startBtn.addEventListener('click', () => {
-
-//     const clickSource = audioContext.createBufferSource();
-//     clickSource.buffer = buffer;
-//     clickSource.connect(masterVolume);
-
-//     clickSource.start();
+//     const sample = new Audio('./samples/click.mp3');
+//     sample.play();
 // });
-
-startBtn.addEventListener('click', () => {
-    const sample = new Audio('./samples/click.mp3');
-    sample.play();
-});
