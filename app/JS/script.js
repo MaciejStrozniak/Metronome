@@ -165,9 +165,16 @@ tempoSlider.addEventListener('input', () => {
 //     clickSource.start();
 // });
 
+<<<<<<< HEAD
 // startBtn.addEventListener('click', () => {
 //     const sample = new Audio('./samples/click.mp3');
 //     sample.play();
 // });
 
 startBtn.addEventListener('click', playSound());
+=======
+startBtn.addEventListener('click', () => {
+    const sample = new Audio('./samples/click.mp3');
+    sample.play();
+});
+>>>>>>> 1c6371d2dc15fce6990e963749d7e30203e3a971
