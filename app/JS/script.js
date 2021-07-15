@@ -66,7 +66,7 @@ class Tempo {
 
 // masterVolume.connect(audioContext.destination); // podpięcie całości do master
 
-
+// dfsdfsdfsdfsd
 const audioContext = new AudioContext;
 let audio;
 
