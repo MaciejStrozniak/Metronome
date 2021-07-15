@@ -49,27 +49,45 @@ class Tempo {
 
 // ---------------------- stworzenie AudioContext ----------------
 
-const audioContext = new AudioContext();
-// buffer definiuje czas trwania dźwięku
-const buffer = audioContext.createBuffer(
-    1, audioContext.sampleRate * 0.5, audioContext.sampleRate 
-    );
-// czytanie danych z kanałów stworzonych w buffer
-const channelData = buffer.getChannelData(0); // 0 odpowiada pierwszemu kanałowi
+// const audioContext = new AudioContext();
+// // buffer definiuje czas trwania dźwięku
+// const buffer = audioContext.createBuffer(
+//     1, audioContext.sampleRate * 0.5, audioContext.sampleRate 
+//     );
+// // czytanie danych z kanałów stworzonych w buffer
+// const channelData = buffer.getChannelData(0); // 0 odpowiada pierwszemu kanałowi
+// const clickChannelData = buffer.getChannelData(0);
 
-// stworzenie white noise (??)
-for (let i = 0; i < buffer.length; i++) {
-    channelData[i] = Math.random() * 2 - 1;
-}
+// // WHITE NOISE
+// for (let i = 0; i < buffer.length; i++) {
+//     channelData[i] = Math.random() * 2 - 1;
+// }
 
-const masterVolume = audioContext.createGain();
+
+// masterVolume.connect(audioContext.destination); // podpięcie całości do master
+
+
+const audioContext = new AudioContext;
+let audio;
+
+fetch("./samples/click.mp3")
+    .then(data => data.arrayBuffer())
+    .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+    .then(decodedAudio => {
+        audio = decodedAudio;
+    });
+
+    const masterVolume = audioContext.createGain();
 masterVolume.gain.setValueAtTime(0.05, 0);
 
-masterVolume.connect(audioContext.destination); // podpięcie całości do master
+function playClick() {
+    const playSound = audioContext.createBufferSource();
+    playSound.buffer = audio;
+    playSound.connect(masterVolume);
+    masterVolume.connect(audioContext.destination);
+    playSound.start();
+}
 
-// CLICK
-
-const click_source = './samples/click.wav';
 
 
 
@@ -81,6 +99,7 @@ const tempoDown = document.querySelector('[data-tempo-down]');
 const tempoFiveUp = document.querySelector('[data-tempo-5up]');
 const tempoFiveDown = document.querySelector('[data-tempo-5down]');
 const tempoSlider = document.querySelector('[data-tempo-slider]');
+// const clickHtml = document.querySelector('[data-audio-click]');
 const startBtn = document.querySelector('[data-start-btn]');
 const stopBtn = document.querySelector('[data-stop-btn]');
 
@@ -89,6 +108,9 @@ const stopBtn = document.querySelector('[data-stop-btn]');
 const tempo = new Tempo(tempoTextElement);
 
 // ---------------------- wywoływanie klas ---------------------------------------
+
+// // CLICK
+// clickChannelData[1] = audioContext.createMediaElementSource(clickHtml);
 
 tempoUp.addEventListener('click', () => {
     tempo.changeTempoUp();
@@ -134,18 +156,18 @@ tempoSlider.addEventListener('input', () => {
 //     whiteNoiseSource.start();
 // });
 
-// startBtn.addEventListener('click', async () => {
-//     const response = await fetch(click_source);
-//     const soundBuffer = await response.arrayBuffer();
-//     const clickBuffer = await audioContext.decodeAudioData(soundBuffer);
+// startBtn.addEventListener('click', () => {
 
 //     const clickSource = audioContext.createBufferSource();
-//     clickSource.buffer = clickBuffer;
-
+//     clickSource.buffer = buffer;
 //     clickSource.connect(masterVolume);
+
 //     clickSource.start();
 // });
 
-startBtn.addEventListener('click', () => {
-    
-});
+// startBtn.addEventListener('click', () => {
+//     const sample = new Audio('./samples/click.mp3');
+//     sample.play();
+// });
+
+startBtn.addEventListener('click', playSound());
