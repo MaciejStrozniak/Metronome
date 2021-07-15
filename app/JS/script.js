@@ -69,31 +69,6 @@ class Tempo {
 const audioContext = new AudioContext;
 // let audio;
 
-filepath = "./samples/click.mp3";
-
-async function getFile(audioContext, filepath) {
-    const response = await fetch(filepath);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    return audioBuffer;
-}
-    
-getFile(audioContext, filepath);
-
-function playClick() {
-        const playSound = audioContext.createBufferSource();
-        playSound.buffer = audioBuffer;
-        playSound.connect(masterVolume);
-        masterVolume.connect(audioContext.destination);
-        playSound.start();
-    }
-
-
-
-
-
-
-
 // fetch("./samples/click.mp3")
 //     .then(data => data.arrayBuffer())
 //     .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
@@ -189,9 +164,7 @@ tempoSlider.addEventListener('input', () => {
 //     clickSource.start();
 // });
 
-// startBtn.addEventListener('click', () => {
-//     const sample = new Audio('./samples/click.mp3');
-//     sample.play();
-// });
-
-startBtn.addEventListener('click', playClick());
+startBtn.addEventListener('click', () => {
+    const sample = new Audio('./samples/click.mp3');
+    sample.play();
+});
