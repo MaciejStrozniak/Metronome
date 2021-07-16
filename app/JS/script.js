@@ -1,98 +1,96 @@
 
 // ----------------------- Deklaracja timera -------------------------------------
 
-// function Timer(callback, timeInterval, options) {
-//     this.timeInterval = timeInterval;
-    
-//     // Add method to start timer
-//     this.start = () => {
-//       // Set the expected time. The moment in time we start the timer plus whatever the time interval is. 
-//       this.expected = Date.now() + this.timeInterval;
-//       // Start the timeout and save the id in a property, so we can cancel it later
-//       this.theTimeout = null;
-      
-//       if (options.immediate) {
-//         callback();
-//       } 
-      
-//       this.timeout = setTimeout(this.round, this.timeInterval);
-//       console.log('Timer Started');
-//     }
-//     // Add method to stop timer
-//     this.stop = () => {
-  
-//       clearTimeout(this.timeout);
-//       console.log('Timer Stopped');
-//     }
-//     // Round method that takes care of running the callback and adjusting the time
-//     this.round = () => {
-//       console.log('timeout', this.timeout);
-//       // The drift will be the current moment in time for this round minus the expected time..
-//       let drift = Date.now() - this.expected;
-//       // Run error callback if drift is greater than time interval, and if the callback is provided
-//       if (drift > this.timeInterval) {
-//         // If error callback is provided
-//         if (options.errorCallback) {
-//           options.errorCallback();
-//         }
-//       }
-//       callback();
-//       // Increment expected time by time interval for every round after running the callback function.
-//       this.expected += this.timeInterval;
-//       console.log('Drift:', drift);
-//       console.log('Next round time interval:', this.timeInterval - drift);
-//       // Run timeout again and set the timeInterval of the next iteration to the original time interval minus the drift.
-//       this.timeout = setTimeout(this.round, this.timeInterval - drift);
-//     }
-//   }
-
-class Timer {
-    constructor(callback, timeInterval, options) {
-        this.timeInterval = timeInterval;
-        this.options = options;
-        this.callback = callback;
+class Metronome
+{
+    constructor(tempo)
+    {
+        this.audioContext = null;
+        this.notesInQueue = [];         // notes that have been put into the web audio and may or may not have been played yet {note, time}
+        this.currentQuarterNote = 0;
+        this.tempo = tempo;
+        this.lookahead = 25;          // How frequently to call scheduling function (in milliseconds)
+        this.scheduleAheadTime = 0.1;   // How far ahead to schedule audio (sec)
+        this.nextNoteTime = 0.0;     // when the next note is due
+        this.isRunning = false;
+        this.intervalID = null;
     }
 
-    start(){
-        // Set the expected time. The moment in time we start the timer plus whatever the time interval is. 
-        this.expected = Date.now() + this.timeInterval;
-        // Start the timeout and save the id in a property, so we can cancel it later
-        this.theTimeout = null;
-        
-        if (options.immediate) {
-          callback();
-        } 
-        
-        this.timeout = setTimeout(this.round, this.timeInterval);
-        console.log('Timer Started');
-      }
-
-      stop() {
-  
-        clearTimeout(this.timeout);
-        console.log('Timer Stopped');
-      }
+    nextNote()
+    {
+        // Advance current note and time by a quarter note (crotchet if you're posh)
+        var secondsPerBeat = 60.0 / this.tempo; // Notice this picks up the CURRENT tempo value to calculate beat length.
+        this.nextNoteTime += secondsPerBeat; // Add beat length to last beat time
     
-      round(){
-              console.log('timeout', this.timeout);
-              // The drift will be the current moment in time for this round minus the expected time..
-              let drift = Date.now() - this.expected;
-              // Run error callback if drift is greater than time interval, and if the callback is provided
-              if (drift > this.timeInterval) {
-                // If error callback is provided
-                if (options.errorCallback) {
-                  options.errorCallback();
-                }
-              }
-              callback();
-              // Increment expected time by time interval for every round after running the callback function.
-              this.expected += this.timeInterval;
-              console.log('Drift:', drift);
-              console.log('Next round time interval:', this.timeInterval - drift);
-              // Run timeout again and set the timeInterval of the next iteration to the original time interval minus the drift.
-              this.timeout = setTimeout(this.round, this.timeInterval - drift);
-            }
+        this.currentQuarterNote++;    // Advance the beat number, wrap to zero
+        if (this.currentQuarterNote == 4) {
+            this.currentQuarterNote = 0;
+        }
+    }
 
+    scheduleNote(beatNumber, time)
+    {
+        // push the note on the queue, even if we're not playing.
+        this.notesInQueue.push({ note: beatNumber, time: time });
+    
+        // create an oscillator
+        const osc = this.audioContext.createOscillator();
+        const envelope = this.audioContext.createGain();
+        
+        osc.frequency.value = (beatNumber % 4 == 0) ? 1000 : 800;
+        envelope.gain.value = 1;
+        envelope.gain.exponentialRampToValueAtTime(1, time + 0.001);
+        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+
+        osc.connect(envelope);
+        envelope.connect(this.audioContext.destination);
+    
+        osc.start(time);
+        osc.stop(time + 0.03);
+    }
+
+    scheduler()
+    {
+        // while there are notes that will need to play before the next interval, schedule them and advance the pointer.
+        while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime ) {
+            this.scheduleNote(this.currentQuarterNote, this.nextNoteTime);
+            this.nextNote();
+        }
+    }
+
+    start()
+    {
+        if (this.isRunning) return;
+
+        if (this.audioContext == null)
+        {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        this.isRunning = true;
+
+        this.currentQuarterNote = 0;
+        this.nextNoteTime = this.audioContext.currentTime + 0.05;
+
+        this.intervalID = setInterval(() => this.scheduler(), this.lookahead);
+    }
+
+    stop()
+    {
+        this.isRunning = false;
+
+        clearInterval(this.intervalID);
+    }
+
+    startStop()
+    {
+        if (this.isRunning) {
+            this.stop();
+        }
+        else {
+            this.start();
+        }
+    }
 }
 
 // ----------------------- Deklaracja klasy -------------------------------------
@@ -199,7 +197,6 @@ whiteNoiseFilter.connect(masterVolume);
 // ---------------------- przypisanie elementów JS do index.html ----------------
 
 const tempoTextElement = document.querySelector('[data-tempo]');
-console.log(tempoTextElement);
 const tempoUp = document.querySelector('[data-tempo-up]');
 const tempoDown = document.querySelector('[data-tempo-down]');
 const tempoFiveUp = document.querySelector('[data-tempo-5up]');
@@ -234,6 +231,7 @@ tempoFiveUp.addEventListener('click', () => {
     tempo.changeTempoFiveUp();
     tempo.sliderTempoUpdate();
     tempo.updateDisplay();
+    
 });
 
 tempoFiveDown.addEventListener('click', () => {
@@ -249,58 +247,38 @@ tempoSlider.addEventListener('input', () => {
 
 // --------------------- odtworzenie dźwięku ----------------------
 
-// startBtn.addEventListener('click', () => {
-//     // // stworzenie buffer source czyli połączenie audio odpowiedzialne za odtw. dźwięku
-//     // // przenesione do event listenera ze względu na to, że buffer musi być tworzony
-//     // // za każdym razem na nowo. Plus wynika to z zarządzania pamięcią w 
-//     // // webAudioAPI   
-
-//     const whiteNoiseSource = audioContext.createBufferSource();
-//     whiteNoiseSource.buffer = buffer;
-//     whiteNoiseSource.detune.setValueAtTime(7, 0);
-//     whiteNoiseSource.connect(whiteNoiseFilter); // podpięcie pod volume gain
-
-//     whiteNoiseSource.start();
-// });
-
-// startBtn.addEventListener('click', () => {
-//     const sample = new Audio('./samples/click.mp3');
-//     sample.play();
-// });
-
-
 function playClick() {
 
     const whiteNoiseSource = audioContext.createBufferSource();
     whiteNoiseSource.buffer = buffer;
     whiteNoiseSource.detune.setValueAtTime(7, 0);
     whiteNoiseSource.connect(whiteNoiseFilter); // podpięcie pod volume gain
-
     whiteNoiseSource.start();
-    // console.log(count);
-    // if (count === beatsPerMeasure) {
-    //     count = 0;
-    // }
-    // if (count === 0) {
-    //     click1.play();
-    //     click1.currentTime = 0;
-    // } else {
-    //     click2.play();
-    //     click2.currentTime = 0;
-    // }
-    // count++;
+    
 }
 
-let bpm = tempo.classTempo;
-const metronome = new Timer(playClick, 60000 / tempo.updateMetronomeTempo, { immediate: true });
-
+const metronome = new Metronome(tempo.classTempo);
 
 startBtn.addEventListener('click', () => {
-    metronome.start();
+    metronome.startStop();
+    console.log(tempoTextElement);
 
+    
 });
 
-stopBtn.addEventListener('click', () => {
-    metronome.stop();
-});
+let tempoChangeButtons = document.querySelector('[data-tempo]');
+for (var i = 0; i < tempoChangeButtons.length; i++) {
+    tempoChangeButtons[i].addEventListener('click', function() {
+    metronome.tempo += parseInt(this.dataset.change);
+    tempo.textContent = metronome.tempo;
 
+    });
+}
+
+// var tempoChangeButtons = document.getElementsByClassName('tempo-change');
+// for (var i = 0; i < tempoChangeButtons.length; i++) {
+//     tempoChangeButtons[i].addEventListener('click', function() {
+//         metronome.tempo += parseInt(this.dataset.change);
+//         tempo.textContent = metronome.tempo;
+//     });
+// }
