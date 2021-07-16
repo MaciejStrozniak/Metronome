@@ -1,3 +1,6 @@
+
+import Timer from "./app/JS/timer.js";
+
 // ----------------------- Deklaracja klasy -------------------------------------
 
 class Tempo {
@@ -7,17 +10,17 @@ class Tempo {
     }
 
     metronomeStartSetup() {
-        this.classTempo = 100; 
+        this.classTempo = 100;
     }
 
     changeTempoUp() {
         if (this.classTempo >= 300) return;
-        this.classTempo ++;
-    }  
+        this.classTempo++;
+    }
 
     changeTempoDown() {
         if (this.classTempo <= 30) return;
-        this.classTempo --;
+        this.classTempo--;
     }
 
     changeTempoFiveUp() {
@@ -37,7 +40,7 @@ class Tempo {
     sliderTempoUpdate() {
         tempoSlider.value = this.classTempo;
         if (isNaN(tempoSlider.value))
-        parseFloat(tempoSlider.value);
+            parseFloat(tempoSlider.value);
     }
 
     updateDisplay() {
@@ -46,14 +49,13 @@ class Tempo {
 
 }
 
-
 // ---------------------- stworzenie AudioContext ----------------
 
 const audioContext = new AudioContext();
 // buffer definiuje czas trwania dźwięku
 const buffer = audioContext.createBuffer(
-    1, audioContext.sampleRate * 0.01, audioContext.sampleRate 
-    );
+    1, audioContext.sampleRate * 0.01, audioContext.sampleRate
+);
 // czytanie danych z kanałów stworzonych w buffer
 const channelData = buffer.getChannelData(0); // 0 odpowiada pierwszemu kanałowi
 
@@ -71,7 +73,7 @@ masterVolume.connect(audioContext.destination); // podpięcie całości do maste
 const whiteNoiseFilter = audioContext.createBiquadFilter();
 whiteNoiseFilter.type = 'lowpass';
 whiteNoiseFilter.frequency.value = 3000;
-whiteNoiseFilter.connect(masterVolume); 
+whiteNoiseFilter.connect(masterVolume);
 
 //const audioContext = new AudioContext;
 // let audio;
@@ -147,12 +149,12 @@ tempoSlider.addEventListener('input', () => {
 // --------------------- odtworzenie dźwięku ----------------------
 
 startBtn.addEventListener('click', () => {
-// // stworzenie buffer source czyli połączenie audio odpowiedzialne za odtw. dźwięku
-// // przenesione do event listenera ze względu na to, że buffer musi być tworzony
-// // za każdym razem na nowo. Plus wynika to z zarządzania pamięcią w 
-// // webAudioAPI   
+    // // stworzenie buffer source czyli połączenie audio odpowiedzialne za odtw. dźwięku
+    // // przenesione do event listenera ze względu na to, że buffer musi być tworzony
+    // // za każdym razem na nowo. Plus wynika to z zarządzania pamięcią w 
+    // // webAudioAPI   
 
-const whiteNoiseSource = audioContext.createBufferSource();
+    const whiteNoiseSource = audioContext.createBufferSource();
     whiteNoiseSource.buffer = buffer;
     whiteNoiseSource.detune.setValueAtTime(7, 0);
     whiteNoiseSource.connect(whiteNoiseFilter); // podpięcie pod volume gain
@@ -164,3 +166,8 @@ const whiteNoiseSource = audioContext.createBufferSource();
 //     const sample = new Audio('./samples/click.mp3');
 //     sample.play();
 // });
+
+
+const metronome = new Timer(playClick, 60000 / bpm, { immediate: true });
+
+metronome.play();
