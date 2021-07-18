@@ -1,46 +1,91 @@
-function Timer(callback, timeInterval, options) {
-    this.timeInterval = timeInterval;
-    
-    // Add method to start timer
-    this.start = () => {
-      // Set the expected time. The moment in time we start the timer plus whatever the time interval is. 
-      this.expected = Date.now() + this.timeInterval;
-      // Start the timeout and save the id in a property, so we can cancel it later
-      this.theTimeout = null;
-      
-      if (options.immediate) {
-        callback();
-      } 
-      
-      this.timeout = setTimeout(this.round, this.timeInterval);
-      console.log('Timer Started');
+class Metronome
+{
+    constructor(tempo)
+    {
+        this.audioContext = null;
+        this.notesInQueue = [];         // notes that have been put into the web audio and may or may not have been played yet {note, time}
+        this.currentQuarterNote = 0;
+        this.tempo = tempo;
+        this.lookahead = 25;          // How frequently to call scheduling function (in milliseconds)
+        this.scheduleAheadTime = 0.1;   // How far ahead to schedule audio (sec)
+        this.nextNoteTime = 0.0;     // when the next note is due
+        this.isRunning = false;
+        this.intervalID = null;
     }
-    // Add method to stop timer
-    this.stop = () => {
-  
-      clearTimeout(this.timeout);
-      console.log('Timer Stopped');
-    }
-    // Round method that takes care of running the callback and adjusting the time
-    this.round = () => {
-      console.log('timeout', this.timeout);
-      // The drift will be the current moment in time for this round minus the expected time..
-      let drift = Date.now() - this.expected;
-      // Run error callback if drift is greater than time interval, and if the callback is provided
-      if (drift > this.timeInterval) {
-        // If error callback is provided
-        if (options.errorCallback) {
-          options.errorCallback();
-        }
-      }
-      callback();
-      // Increment expected time by time interval for every round after running the callback function.
-      this.expected += this.timeInterval;
-      console.log('Drift:', drift);
-      console.log('Next round time interval:', this.timeInterval - drift);
-      // Run timeout again and set the timeInterval of the next iteration to the original time interval minus the drift.
-      this.timeout = setTimeout(this.round, this.timeInterval - drift);
-    }
-  }
 
-  export default Timer;
+    nextNote()
+    {
+        // Advance current note and time by a quarter note (crotchet if you're posh)
+        var secondsPerBeat = 60.0 / this.tempo; // Notice this picks up the CURRENT tempo value to calculate beat length.
+        this.nextNoteTime += secondsPerBeat; // Add beat length to last beat time
+    
+        this.currentQuarterNote++;    // Advance the beat number, wrap to zero
+        if (this.currentQuarterNote == 4) {
+            this.currentQuarterNote = 0;
+        }
+    }
+
+    scheduleNote(beatNumber, time)
+    {
+        // push the note on the queue, even if we're not playing.
+        this.notesInQueue.push({ note: beatNumber, time: time });
+    
+        // create an oscillator
+        const osc = this.audioContext.createOscillator();
+        const envelope = this.audioContext.createGain();
+        
+        osc.frequency.value = (beatNumber % 4 == 0) ? 1000 : 800;
+        envelope.gain.value = 1;
+        envelope.gain.exponentialRampToValueAtTime(1, time + 0.001);
+        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+
+        osc.connect(envelope);
+        envelope.connect(this.audioContext.destination);
+    
+        osc.start(time);
+        osc.stop(time + 0.03);
+    }
+
+    scheduler()
+    {
+        // while there are notes that will need to play before the next interval, schedule them and advance the pointer.
+        while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime ) {
+            this.scheduleNote(this.currentQuarterNote, this.nextNoteTime);
+            this.nextNote();
+        }
+    }
+
+    start()
+    {
+        if (this.isRunning) return;
+
+        if (this.audioContext == null)
+        {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); // ????
+        }
+
+        this.isRunning = true;
+
+        this.currentQuarterNote = 0;
+        this.nextNoteTime = this.audioContext.currentTime + 0.05;
+
+        this.intervalID = setInterval(() => this.scheduler(), this.lookahead);
+    }
+
+    stop()
+    {
+        this.isRunning = false;
+
+        clearInterval(this.intervalID);
+    }
+
+    startStop()
+    {
+        if (this.isRunning) {
+            this.stop();
+        }
+        else {
+            this.start();
+        }
+    }
+}

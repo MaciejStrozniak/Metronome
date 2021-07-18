@@ -64,7 +64,7 @@ class Metronome
 
         if (this.audioContext == null)
         {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); // ????
         }
 
         this.isRunning = true;
@@ -135,7 +135,7 @@ class Tempo {
             parseFloat(tempoSlider.value);
     }
 
-    updateMetronomeTempo() {
+    giveTempo() {
         return this.classTempo;
     }
 
@@ -172,27 +172,6 @@ const whiteNoiseFilter = audioContext.createBiquadFilter();
 whiteNoiseFilter.type = 'lowpass';
 whiteNoiseFilter.frequency.value = 3000;
 whiteNoiseFilter.connect(masterVolume);
-
-//const audioContext = new AudioContext;
-// let audio;
-
-// fetch("./samples/click.mp3")
-//     .then(data => data.arrayBuffer())
-//     .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-//     .then(decodedAudio => {
-//         audio = decodedAudio;
-//     });
-
-// function playClick() {
-//     const playSound = audioContext.createBufferSource();
-//     playSound.buffer = audio;
-//     playSound.connect(masterVolume);
-//     masterVolume.connect(audioContext.destination);
-//     playSound.start();
-// }
-
-
-
 
 // ---------------------- przypisanie elementów JS do index.html ----------------
 
@@ -256,24 +235,27 @@ function playClick() {
     whiteNoiseSource.start();
     
 }
+// moje
+let metronomeTempo = tempo.giveTempo();
+const metronome = new Metronome(metronomeTempo);
+metronomeTempo.textContent = metronome.tempo;
+// kopia
+// var metronome = new Metronome();
+// var tempo = document.getElementById('tempo');
+// tempo.textContent = metronome.tempo;
 
-const metronome = new Metronome(tempo.classTempo);
 
 startBtn.addEventListener('click', () => {
     metronome.startStop();
-    console.log(tempoTextElement);
+    console.log(tempoTextElement.textContent);
+    console.log(metronome.tempo);
+    console.log(metronomeTempo);
+    console.log(tempo.giveTempo());
+
+
 
     
 });
-
-let tempoChangeButtons = document.querySelector('[data-tempo]');
-for (var i = 0; i < tempoChangeButtons.length; i++) {
-    tempoChangeButtons[i].addEventListener('click', function() {
-    metronome.tempo += parseInt(this.dataset.change);
-    tempo.textContent = metronome.tempo;
-
-    });
-}
 
 // var tempoChangeButtons = document.getElementsByClassName('tempo-change');
 // for (var i = 0; i < tempoChangeButtons.length; i++) {
