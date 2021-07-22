@@ -23,7 +23,7 @@ class Metronome
         this.nextNoteTime += secondsPerBeat; // Add beat length to last beat time
     
         this.currentQuarterNote++;    // Advance the beat number, wrap to zero
-        if (this.currentQuarterNote == 4) {
+        if (this.currentQuarterNote == measureObject.measure) {
             this.currentQuarterNote = 0;
         }
     }
@@ -37,7 +37,7 @@ class Metronome
         const osc = this.audioContext.createOscillator();
         const envelope = this.audioContext.createGain();
         
-        osc.frequency.value = (beatNumber % 4 == 0) ? 1000 : 800;
+        osc.frequency.value = (beatNumber % measureObject.measure == 0) ? 1000 : 800;
         envelope.gain.value = 1;
         envelope.gain.exponentialRampToValueAtTime(1, time + 0.001);
         envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
@@ -102,7 +102,7 @@ class Tempo {
     }
 
     metronomeStartSetup() {
-        this.classTempo = tempoTextElement.textContent;
+        this.classTempo = 100;
     }
 
     changeTempoUp() {
@@ -136,7 +136,7 @@ class Tempo {
     }
 
     updateTempo() {
-        metronome.tempo = tempo.classTempo;
+        metronome.tempo = this.classTempo;
         console.log(metronome.tempo);
     }
 
@@ -146,6 +146,33 @@ class Tempo {
 
 }
 
+
+// ----------------------- Deklaracja klasy Measure -----------------------------
+
+class Measure {
+    constructor(measure) {
+        this.measure = measure;
+    }
+
+    changeMeasure() {
+        if(this.measure < 12) {
+            this.measure ++
+        }
+        else {
+            this.measure = 2;
+        }
+    } 
+
+    updateMeasure() {
+        // metronome. = this.measure;
+    }
+    
+    updateMeasureDisplay() {
+        measureBtn.innerText = this.measure;
+    }
+}
+
+
 // ---------------------- przypisanie elementów JS do index.html ----------------
 
 const tempoTextElement = document.querySelector('[data-tempo]');
@@ -154,20 +181,17 @@ const tempoDown = document.querySelector('[data-tempo-down]');
 const tempoFiveUp = document.querySelector('[data-tempo-5up]');
 const tempoFiveDown = document.querySelector('[data-tempo-5down]');
 const tempoSlider = document.querySelector('[data-tempo-slider]');
-// const clickHtml = document.querySelector('[data-audio-click]');
 const startBtn = document.querySelector('[data-start-btn]');
-const stopBtn = document.querySelector('[data-stop-btn]');
+const measureBtn = document.querySelector('[data-measure-btn]');
 
 // ---------------------- stworzenie obiektów --------------------------------
 
 const tempo = new Tempo(tempoTextElement);
+const measureObject = new Measure(measureBtn.innerText);
 const metronome = new Metronome();
 metronome.tempo = tempo.classTempo;
 
 // ---------------------- wywoływanie klas ---------------------------------------
-
-// // CLICK
-// clickChannelData[1] = audioContext.createMediaElementSource(clickHtml);
 
 tempoUp.addEventListener('click', () => {
     tempo.changeTempoUp();
@@ -206,6 +230,21 @@ tempoSlider.addEventListener('input', () => {
 // --------------------- odtworzenie dźwięku ----------------------
 
 startBtn.addEventListener('click', () => {
+    if(metronome.isRunning === false) {
+        startBtn.textContent = "STOP";
+    } else {
+        startBtn.textContent = "START";
+
+    }
     tempo.updateTempo();
     metronome.startStop();   
+});
+
+
+// --------------------- zmiana metrum ----------------------------
+
+measureBtn.addEventListener('click', () => {
+    measureObject.changeMeasure();
+    measureObject.updateMeasureDisplay();
+    console.log(measureObject.measure);
 });
