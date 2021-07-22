@@ -154,6 +154,8 @@ class Measure {
         this.measure = measure;
     }
 
+// PO ZROBIENIU HOVER MENU USTAWIĆ WYBÓR METRUM NA SWITCHu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     changeMeasure() {
         if(this.measure < 12) {
             this.measure ++
