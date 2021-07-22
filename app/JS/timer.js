@@ -88,4 +88,5 @@ class Metronome
             this.start();
         }
     }
+
 }

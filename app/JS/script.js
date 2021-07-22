@@ -1,5 +1,5 @@
 
-// ----------------------- Deklaracja timera -------------------------------------
+// ----------------------- Deklaracja klasy Metronome ---------------------------------
 
 class Metronome
 {
@@ -93,7 +93,7 @@ class Metronome
     }
 }
 
-// ----------------------- Deklaracja klasy -------------------------------------
+// ----------------------- Deklaracja klasy Tempo -------------------------------------
 
 class Tempo {
     constructor(tempoTextElement) {
@@ -102,7 +102,7 @@ class Tempo {
     }
 
     metronomeStartSetup() {
-        this.classTempo = 100;
+        this.classTempo = tempoTextElement.textContent;
     }
 
     changeTempoUp() {
@@ -135,8 +135,9 @@ class Tempo {
             parseFloat(tempoSlider.value);
     }
 
-    giveTempo() {
-        return this.classTempo;
+    updateTempo() {
+        metronome.tempo = tempo.classTempo;
+        console.log(metronome.tempo);
     }
 
     updateDisplay() {
@@ -144,34 +145,6 @@ class Tempo {
     }
 
 }
-
-console.log('Check');
-
-// ---------------------- stworzenie AudioContext ----------------
-
-const audioContext = new AudioContext();
-// buffer definiuje czas trwania dźwięku
-const buffer = audioContext.createBuffer(
-    1, audioContext.sampleRate * 0.01, audioContext.sampleRate
-);
-// czytanie danych z kanałów stworzonych w buffer
-const channelData = buffer.getChannelData(0); // 0 odpowiada pierwszemu kanałowi
-
-// WHITE NOISE
-for (let i = 0; i < buffer.length; i++) {
-    channelData[i] = Math.random() * 2 - 1;
-}
-
-const masterVolume = audioContext.createGain();
-masterVolume.gain.setValueAtTime(0.5, 0);
-
-masterVolume.connect(audioContext.destination); // podpięcie całości do master
-
-// WHITE NOISE FILTER
-const whiteNoiseFilter = audioContext.createBiquadFilter();
-whiteNoiseFilter.type = 'lowpass';
-whiteNoiseFilter.frequency.value = 3000;
-whiteNoiseFilter.connect(masterVolume);
 
 // ---------------------- przypisanie elementów JS do index.html ----------------
 
@@ -185,9 +158,11 @@ const tempoSlider = document.querySelector('[data-tempo-slider]');
 const startBtn = document.querySelector('[data-start-btn]');
 const stopBtn = document.querySelector('[data-stop-btn]');
 
-// ---------------------- nowy obiekt typu Tempo --------------------------------
+// ---------------------- stworzenie obiektów --------------------------------
 
 const tempo = new Tempo(tempoTextElement);
+const metronome = new Metronome();
+metronome.tempo = tempo.classTempo;
 
 // ---------------------- wywoływanie klas ---------------------------------------
 
@@ -197,70 +172,40 @@ const tempo = new Tempo(tempoTextElement);
 tempoUp.addEventListener('click', () => {
     tempo.changeTempoUp();
     tempo.sliderTempoUpdate();
+    tempo.updateTempo();
     tempo.updateDisplay();
 });
 
 tempoDown.addEventListener('click', () => {
     tempo.changeTempoDown();
     tempo.sliderTempoUpdate();
+    tempo.updateTempo();
     tempo.updateDisplay();
 });
 
 tempoFiveUp.addEventListener('click', () => {
     tempo.changeTempoFiveUp();
     tempo.sliderTempoUpdate();
+    tempo.updateTempo();
     tempo.updateDisplay();
-    
 });
 
 tempoFiveDown.addEventListener('click', () => {
     tempo.changeTempoFiveDown();
     tempo.sliderTempoUpdate();
+    tempo.updateTempo();
     tempo.updateDisplay();
 });
 
 tempoSlider.addEventListener('input', () => {
     tempo.classTempo = parseFloat(tempoSlider.value);
+    tempo.updateTempo();
     tempo.updateDisplay();
 })
 
 // --------------------- odtworzenie dźwięku ----------------------
 
-function playClick() {
-
-    const whiteNoiseSource = audioContext.createBufferSource();
-    whiteNoiseSource.buffer = buffer;
-    whiteNoiseSource.detune.setValueAtTime(7, 0);
-    whiteNoiseSource.connect(whiteNoiseFilter); // podpięcie pod volume gain
-    whiteNoiseSource.start();
-    
-}
-// moje
-let metronomeTempo = tempo.giveTempo();
-const metronome = new Metronome(metronomeTempo);
-metronomeTempo.textContent = metronome.tempo;
-// kopia
-// var metronome = new Metronome();
-// var tempo = document.getElementById('tempo');
-// tempo.textContent = metronome.tempo;
-
-
 startBtn.addEventListener('click', () => {
-    metronome.startStop();
-    console.log(tempoTextElement.textContent);
-    console.log(metronome.tempo);
-    console.log(metronomeTempo);
-    console.log(tempo.giveTempo());
-
-
-
-    
+    tempo.updateTempo();
+    metronome.startStop();   
 });
-
-// var tempoChangeButtons = document.getElementsByClassName('tempo-change');
-// for (var i = 0; i < tempoChangeButtons.length; i++) {
-//     tempoChangeButtons[i].addEventListener('click', function() {
-//         metronome.tempo += parseInt(this.dataset.change);
-//         tempo.textContent = metronome.tempo;
-//     });
-// }
