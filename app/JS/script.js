@@ -152,7 +152,8 @@ class Tempo {
 class Measure {
     constructor(measure) {
         this.measure = measure;
-        
+        this.r;
+        this.reset = false;
     }
 
 // PO ZROBIENIU HOVER MENU USTAWIĆ WYBÓR METRUM NA SWITCHu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -168,29 +169,34 @@ class Measure {
 
     dotsManipulate() {
 
-        let dotsArray = [];
-        let dot = document.createElement("div"); // tag przechowuje nowy element
-            dot.classList.add("dot"); // dodanie klasy do elementu
-            dot.setAttribute("id", "dot");
+        
+        // let dotsArray = [];
+        let dot = document.createElement("div"); // dot przechowuje nowy element
+            dot.classList.add("dot"); // dodanie klasy do nowego dot
+            dot.setAttribute("id", `dot${this.measure}`); // dodatnie id do nowego dot
         const element = document.getElementById("dots"); // powiązanie z section dots
-        let r = 0;
-
-
+    
+        
         if(this.measure <= 12 && this.measure != 1) {
             
             element.appendChild(dot); // dodanie elementu do sekcji dots
-            dotsArray.push(dot);
-            r++;
-            console.log(`Wartość r: ${r}`);
-            console.log(dotsArray[1]);
+              
         }
         else {
-            for(let i = 1; i < 12; i++) {
-                const elementsToRemove = document.getElementById("dot");
+            for(let i = 1; i <= 12; i++) {
+                const elementsToRemove = document.getElementById(`dot${i}`);
                       element.removeChild(elementsToRemove);
-                      dotsArray.pop[i];
+                    //   dotsArray.pop[i];
+                    this.r = 1;
+                    this.reset = true;
             }
         }
+
+        if(this.reset === true) {
+            element.appendChild(dot);
+            this.reset = false;
+        }
+
 
     }
     
@@ -211,8 +217,6 @@ const tempoFiveDown = document.querySelector('[data-tempo-5down]');
 const tempoSlider = document.querySelector('[data-tempo-slider]');
 const startBtn = document.querySelector('[data-start-btn]');
 const measureBtn = document.querySelector('[data-measure-btn]');
-
-console.log(dots);
 
 // ---------------------- stworzenie obiektów --------------------------------
 
