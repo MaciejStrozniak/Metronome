@@ -14,6 +14,7 @@ class Metronome
         this.nextNoteTime = 0.0;     // when the next note is due
         this.isRunning = false;
         this.intervalID = null;
+        this.dotCount = 1;
     }
 
     nextNote()
@@ -37,7 +38,24 @@ class Metronome
         const osc = this.audioContext.createOscillator();
         const envelope = this.audioContext.createGain();
         
-        osc.frequency.value = (beatNumber % measureObject.measure == 0) ? 1000 : 800;
+        // osc.frequency.value = (beatNumber % measureObject.measure == 0) ? 1000 : 800;
+
+        if(beatNumber % measureObject.measure === 0) {
+            osc.frequency.value = 1000;
+                document.getElementById("dot1").style.backgroundColor = 'cyan';
+        } else {
+            osc.frequency.value = 800;
+                this.dotCount++;
+                document.getElementById('dot1').style.backgroundColor = 'snow'; 
+            //     document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'yellow';
+            //     // document.getElementById(`dot${measureObject.measure}`).style.backgroundColor = 'snow';
+
+            //     if(this.dotCount === measureObject.measure)
+            //         this.dotCount = 1;
+
+            // console.log(this.dotCount);
+        }
+
         envelope.gain.value = 1;
         envelope.gain.exponentialRampToValueAtTime(1, time + 0.001);
         envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
@@ -160,7 +178,7 @@ class Measure {
 
     changeMeasure() {
         if(this.measure < 12) {
-            this.measure ++
+            this.measure ++;
         }
         else {
             this.measure = 1;
@@ -168,19 +186,16 @@ class Measure {
     } 
 
     dotsManipulate() {
-
-        
-        // let dotsArray = [];
+       
         let dot = document.createElement("div"); // dot przechowuje nowy element
             dot.classList.add("dot"); // dodanie klasy do nowego dot
             dot.setAttribute("id", `dot${this.measure}`); // dodatnie id do nowego dot
         const element = document.getElementById("dots"); // powiązanie z section dots
     
-        
         if(this.measure <= 12 && this.measure != 1) {
             
             element.appendChild(dot); // dodanie elementu do sekcji dots
-              
+
         }
         else {
             for(let i = 1; i <= 12; i++) {
@@ -196,8 +211,6 @@ class Measure {
             element.appendChild(dot);
             this.reset = false;
         }
-
-
     }
     
 
