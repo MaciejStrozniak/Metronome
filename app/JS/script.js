@@ -152,6 +152,7 @@ class Tempo {
 class Measure {
     constructor(measure) {
         this.measure = measure;
+        
     }
 
 // PO ZROBIENIU HOVER MENU USTAWIĆ WYBÓR METRUM NA SWITCHu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -161,14 +162,39 @@ class Measure {
             this.measure ++
         }
         else {
-            this.measure = 2;
+            this.measure = 1;
         }
     } 
 
-    updateMeasure() {
-        // metronome. = this.measure;
+    dotsManipulate() {
+
+        let dotsArray = [];
+        let dot = document.createElement("div"); // tag przechowuje nowy element
+            dot.classList.add("dot"); // dodanie klasy do elementu
+            dot.setAttribute("id", "dot");
+        const element = document.getElementById("dots"); // powiązanie z section dots
+        let r = 0;
+
+
+        if(this.measure <= 12 && this.measure != 1) {
+            
+            element.appendChild(dot); // dodanie elementu do sekcji dots
+            dotsArray.push(dot);
+            r++;
+            console.log(`Wartość r: ${r}`);
+            console.log(dotsArray[1]);
+        }
+        else {
+            for(let i = 1; i < 12; i++) {
+                const elementsToRemove = document.getElementById("dot");
+                      element.removeChild(elementsToRemove);
+                      dotsArray.pop[i];
+            }
+        }
+
     }
     
+
     updateMeasureDisplay() {
         measureBtn.innerText = this.measure;
     }
@@ -186,12 +212,14 @@ const tempoSlider = document.querySelector('[data-tempo-slider]');
 const startBtn = document.querySelector('[data-start-btn]');
 const measureBtn = document.querySelector('[data-measure-btn]');
 
+console.log(dots);
+
 // ---------------------- stworzenie obiektów --------------------------------
 
 const tempo = new Tempo(tempoTextElement);
 const measureObject = new Measure(measureBtn.innerText);
 const metronome = new Metronome();
-metronome.tempo = tempo.classTempo;
+tempo.updateTempo();
 
 // ---------------------- wywoływanie klas ---------------------------------------
 
@@ -247,6 +275,7 @@ startBtn.addEventListener('click', () => {
 
 measureBtn.addEventListener('click', () => {
     measureObject.changeMeasure();
+    measureObject.dotsManipulate();
     measureObject.updateMeasureDisplay();
     console.log(measureObject.measure);
 });
