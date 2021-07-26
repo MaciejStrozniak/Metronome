@@ -43,17 +43,24 @@ class Metronome
         if(beatNumber % measureObject.measure === 0) {
             osc.frequency.value = 1000;
                 document.getElementById("dot1").style.backgroundColor = 'cyan';
+                setTimeout(() => {
+                    document.getElementById("dot1").style.backgroundColor = 'snow';
+                }, 70);
         } else {
             osc.frequency.value = 800;
-                this.dotCount++;
-                document.getElementById('dot1').style.backgroundColor = 'snow'; 
-            //     document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'yellow';
-            //     // document.getElementById(`dot${measureObject.measure}`).style.backgroundColor = 'snow';
 
-            //     if(this.dotCount === measureObject.measure)
-            //         this.dotCount = 1;
+            if(this.dotCount == measureObject.measure)
+                this.dotCount = 1;
 
-            // console.log(this.dotCount);
+                this.dotCount ++;
+                
+                document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'yellow';
+                setTimeout(() => {
+                    document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'snow';
+                    
+                }, 70);
+                
+                console.log(`Numer kropki: ${this.dotCount}`);
         }
 
         envelope.gain.value = 1;
@@ -78,6 +85,8 @@ class Metronome
 
     start()
     {
+        this.dotCount = 1;
+
         if (this.isRunning) return;
 
         if (this.audioContext == null)
@@ -177,40 +186,52 @@ class Measure {
 // PO ZROBIENIU HOVER MENU USTAWIĆ WYBÓR METRUM NA SWITCHu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     changeMeasure() {
-        if(this.measure < 12) {
-            this.measure ++;
-        }
+
+        if(metronome.isRunning === true) return;
         else {
-            this.measure = 1;
+            if(this.measure < 12) {
+                this.measure ++;
+            }
+            else {
+                this.measure = 1;
+            }
         }
+
+        
     } 
 
     dotsManipulate() {
        
-        let dot = document.createElement("div"); // dot przechowuje nowy element
-            dot.classList.add("dot"); // dodanie klasy do nowego dot
-            dot.setAttribute("id", `dot${this.measure}`); // dodatnie id do nowego dot
-        const element = document.getElementById("dots"); // powiązanie z section dots
-    
-        if(this.measure <= 12 && this.measure != 1) {
-            
-            element.appendChild(dot); // dodanie elementu do sekcji dots
-
-        }
+        if(metronome.isRunning === true) return;
         else {
-            for(let i = 1; i <= 12; i++) {
-                const elementsToRemove = document.getElementById(`dot${i}`);
-                      element.removeChild(elementsToRemove);
-                    //   dotsArray.pop[i];
-                    this.r = 1;
-                    this.reset = true;
+                let dot = document.createElement("div"); // dot przechowuje nowy element
+                dot.classList.add("dot"); // dodanie klasy do nowego dot
+                dot.setAttribute("id", `dot${this.measure}`); // dodatnie id do nowego dot
+            const element = document.getElementById("dots"); // powiązanie z section dots
+        
+            if(this.measure <= 12 && this.measure != 1) {
+                
+                element.appendChild(dot); // dodanie elementu do sekcji dots
+
             }
+            else {
+                for(let i = 1; i <= 12; i++) {
+                    const elementsToRemove = document.getElementById(`dot${i}`);
+                        element.removeChild(elementsToRemove);
+                        //   dotsArray.pop[i];
+                        this.r = 1;
+                        this.reset = true;
+                }
+            }
+
+            if(this.reset === true) {
+                element.appendChild(dot);
+                this.reset = false;
+            }
+
         }
 
-        if(this.reset === true) {
-            element.appendChild(dot);
-            this.reset = false;
-        }
+        
     }
     
 

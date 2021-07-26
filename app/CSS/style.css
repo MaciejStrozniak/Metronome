@@ -187,6 +187,17 @@ section#tempo5bpm {
     font-size: 1em;
 }
 
+.measureTxt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: solid black 0px;
+    background-color:rgba(54, 151, 231, 0.603);
+    min-width: 25%;
+    max-height: 2200px;
+    font-size: 1em;
+}
+
 .measureBtn:hover {
     background-color:thistle;
 }
