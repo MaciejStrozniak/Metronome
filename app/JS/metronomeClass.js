@@ -1,4 +1,4 @@
-export default class Metronome
+class Metronome
 {
     constructor(tempo)
     {
