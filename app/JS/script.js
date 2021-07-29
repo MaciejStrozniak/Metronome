@@ -54,7 +54,7 @@ class Metronome
 
                 this.dotCount ++;
                 
-                document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'yellow';
+                document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'rgb(166, 214, 186)';
                 setTimeout(() => {
                     document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'snow';
                     
@@ -240,6 +240,12 @@ class Measure {
     }
 }
 
+
+// ---------------------- import modułów ----------------
+
+// import Tempo from "./tempoClass.js";
+// import Metronome from "./metronomeClass.js";
+// import Measure from "./measureClass.js";
 
 // ---------------------- przypisanie elementów JS do index.html ----------------
 
