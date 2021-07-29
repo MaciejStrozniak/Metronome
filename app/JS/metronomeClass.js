@@ -1,4 +1,4 @@
-class Metronome
+export default class Metronome
 {
     constructor(tempo)
     {
@@ -11,6 +11,7 @@ class Metronome
         this.nextNoteTime = 0.0;     // when the next note is due
         this.isRunning = false;
         this.intervalID = null;
+        this.dotCount = 1;
     }
 
     nextNote()
@@ -20,7 +21,7 @@ class Metronome
         this.nextNoteTime += secondsPerBeat; // Add beat length to last beat time
     
         this.currentQuarterNote++;    // Advance the beat number, wrap to zero
-        if (this.currentQuarterNote == 4) {
+        if (this.currentQuarterNote == measureObject.measure) {
             this.currentQuarterNote = 0;
         }
     }
@@ -34,7 +35,31 @@ class Metronome
         const osc = this.audioContext.createOscillator();
         const envelope = this.audioContext.createGain();
         
-        osc.frequency.value = (beatNumber % 4 == 0) ? 1000 : 800;
+        // osc.frequency.value = (beatNumber % measureObject.measure == 0) ? 1000 : 800;
+
+        if(beatNumber % measureObject.measure === 0) {
+            osc.frequency.value = 1000;
+                document.getElementById("dot1").style.backgroundColor = 'cyan';
+                setTimeout(() => {
+                    document.getElementById("dot1").style.backgroundColor = 'snow';
+                }, 70);
+        } else {
+            osc.frequency.value = 800;
+
+            if(this.dotCount == measureObject.measure)
+                this.dotCount = 1;
+
+                this.dotCount ++;
+                
+                document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'yellow';
+                setTimeout(() => {
+                    document.getElementById(`dot${this.dotCount}`).style.backgroundColor = 'snow';
+                    
+                }, 70);
+                
+                console.log(`Numer kropki: ${this.dotCount}`);
+        }
+
         envelope.gain.value = 1;
         envelope.gain.exponentialRampToValueAtTime(1, time + 0.001);
         envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
@@ -57,6 +82,8 @@ class Metronome
 
     start()
     {
+        this.dotCount = 1;
+
         if (this.isRunning) return;
 
         if (this.audioContext == null)
@@ -88,5 +115,4 @@ class Metronome
             this.start();
         }
     }
-
 }
