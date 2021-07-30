@@ -1,3 +1,5 @@
+import { measureObject } from "./script.js";
+
 export default class Metronome
 {
     constructor(tempo)
@@ -26,25 +28,29 @@ export default class Metronome
         }
     }
 
-    scheduleNote(beatNumber, time)
+    scheduleNote(beatNumber, time) // NIE ZMIENIA SIĘ beatNumber!
     {
         // push the note on the queue, even if we're not playing.
         this.notesInQueue.push({ note: beatNumber, time: time });
-    
+       
         // create an oscillator
         const osc = this.audioContext.createOscillator();
         const envelope = this.audioContext.createGain();
+
         
         // osc.frequency.value = (beatNumber % measureObject.measure == 0) ? 1000 : 800;
 
         if(beatNumber % measureObject.measure === 0) {
             osc.frequency.value = 1000;
                 document.getElementById("dot1").style.backgroundColor = 'cyan';
+        console.log(`Przeszło if ${measureObject.measure}`);
+
                 setTimeout(() => {
                     document.getElementById("dot1").style.backgroundColor = 'snow';
                 }, 70);
         } else {
             osc.frequency.value = 800;
+            console.log(`Przeszło else ${measureObject.measure}`);
 
             if(this.dotCount == measureObject.measure)
                 this.dotCount = 1;
@@ -73,11 +79,14 @@ export default class Metronome
 
     scheduler()
     {
+
         // while there are notes that will need to play before the next interval, schedule them and advance the pointer.
         while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime ) {
             this.scheduleNote(this.currentQuarterNote, this.nextNoteTime);
             this.nextNote();
         }
+    console.log(`BeatNumber: ${this.currentQuarterNote}`);
+
     }
 
     start()
