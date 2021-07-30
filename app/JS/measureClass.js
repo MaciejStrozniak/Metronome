@@ -1,3 +1,5 @@
+import { metronome, measureBtn } from "./script.js";
+
 export default class Measure {
     constructor(measure) {
         this.measure = measure;

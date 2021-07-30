@@ -1,3 +1,5 @@
+import { tempoSlider } from "./script.js";
+
 export default class Tempo {
     constructor(tempoTextElement) {
         this.tempoTextElement = tempoTextElement;
@@ -39,8 +41,10 @@ export default class Tempo {
     }
 
     updateTempo() {
-        metronome.tempo = this.classTempo;
-        console.log(metronome.tempo);
+        // metronome.tempo = this.classTempo;
+        this.tempo = this.classTempo;
+        // console.log(metronome.tempo);
+        console.log(this.tempo);
     }
 
     updateDisplay() {
