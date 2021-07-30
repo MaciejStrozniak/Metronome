@@ -7,8 +7,6 @@ export default class Measure {
         this.reset = false;
     }
 
-// PO ZROBIENIU HOVER MENU USTAWIĆ WYBÓR METRUM NA SWITCHu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
     changeMeasure() {
 
         if(metronome.isRunning === true) return;
@@ -20,7 +18,6 @@ export default class Measure {
                 this.measure = 1;
             }
         }
-
         
     } 
 
@@ -52,13 +49,9 @@ export default class Measure {
                 element.appendChild(dot);
                 this.reset = false;
             }
-
-        }
-
-        
+        } 
     }
     
-
     updateMeasureDisplay() {
         measureBtn.innerText = this.measure;
     }
