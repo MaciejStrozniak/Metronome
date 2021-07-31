@@ -189,15 +189,13 @@ class Measure {
 
         if(metronome.isRunning === true) return;
         else {
-            if(this.measure < 12) {
+            if(this.measure < 9) {
                 this.measure ++;
             }
             else {
                 this.measure = 1;
             }
-        }
-
-        
+        }    
     } 
 
     dotsManipulate() {
@@ -209,19 +207,19 @@ class Measure {
                 dot.setAttribute("id", `dot${this.measure}`); // dodatnie id do nowego dot
             const element = document.getElementById("dots"); // powiązanie z section dots
         
-            if(this.measure <= 12 && this.measure != 1) {
+            if(this.measure <= 9 && this.measure != 1) {
                 
                 element.appendChild(dot); // dodanie elementu do sekcji dots
 
             }
             else {
-                for(let i = 1; i <= 12; i++) {
+                for(let i = 1; i <= 9; i++) {
                     const elementsToRemove = document.getElementById(`dot${i}`);
                         element.removeChild(elementsToRemove);
-                        //   dotsArray.pop[i];
-                        this.r = 1;
-                        this.reset = true;
+                        
                 }
+                this.r = 1;
+                this.reset = true;
             }
 
             if(this.reset === true) {
